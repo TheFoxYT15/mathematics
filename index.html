@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SYR I VIBE | تحدى الرياضيات</title>
+    <style>
+        :root {
+            --neon-blue: #00f0ff;
+            --neon-pink: #ff00ff;
+            --neon-green: #00ffaa;
+            --dark-bg: #0a0a1a;
+            --card-bg: rgba(15, 15, 35, 0.8);
+        }
+        
+        body {
+            margin: 0;
+            background: var(--dark-bg);
+            color: white;
+            font-family: 'Cairo', sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            text-align: center;
+        }
+        
+        .back-btn {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--neon-blue);
+            color: var(--neon-blue);
+            padding: 10px 20px;
+            border-radius: 50px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s;
+            z-index: 100;
+            box-shadow: 0 0 15px rgba(0, 240, 255, 0.3);
+            font-weight: bold;
+        }
+        
+        .back-btn:hover {
+            background: rgba(0, 240, 255, 0.2);
+            transform: translateX(-5px);
+            box-shadow: 0 0 20px rgba(0, 240, 255, 0.5);
+        }
+        
+        h1 {
+            color: var(--neon-blue);
+            text-shadow: 0 0 10px var(--neon-blue);
+            margin-bottom: 30px;
+        }
+        
+        .game-container {
+            background: var(--card-bg);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--neon-green);
+            border-radius: 15px;
+            padding: 30px;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 0 20px rgba(0, 255, 170, 0.2);
+        }
+        
+        .question {
+            font-size: 2.5rem;
+            margin: 20px 0;
+            color: var(--neon-pink);
+            text-shadow: 0 0 8px var(--neon-pink);
+        }
+        
+        .options {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin: 30px 0;
+        }
+        
+        .option {
+            background: rgba(0, 240, 255, 0.1);
+            border: 1px solid var(--neon-blue);
+            border-radius: 10px;
+            padding: 15px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 1.2rem;
+        }
+        
+        .option:hover {
+            background: rgba(0, 240, 255, 0.2);
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0, 240, 255, 0.3);
+        }
+        
+        .stats {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            font-size: 1.1rem;
+        }
+        
+        .timer {
+            color: var(--neon-green);
+        }
+        
+        .score {
+            color: var(--neon-blue);
+        }
+        
+        .level-selector {
+            margin: 20px 0;
+        }
+        
+        .level-btn {
+            background: transparent;
+            border: 1px solid var(--neon-pink);
+            color: white;
+            padding: 8px 15px;
+            margin: 0 5px;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .level-btn.active {
+            background: var(--neon-pink);
+            color: black;
+            box-shadow: 0 0 15px var(--neon-pink);
+        }
+        
+        .start-btn {
+            background: linear-gradient(135deg, var(--neon-blue), var(--neon-green));
+            border: none;
+            padding: 12px 30px;
+            font-size: 1.2rem;
+            border-radius: 30px;
+            color: black;
+            cursor: pointer;
+            margin-top: 20px;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+        
+        .start-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(0, 240, 255, 0.4);
+        }
+        
+        @media (max-width: 600px) {
+            .options {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <button class="back-btn" onclick="window.history.back()">
+        <i class="fas fa-arrow-right"></i> العودة
+    </button>
+
+    <h1><i class="fas fa-calculator"></i> تحدى الرياضيات السريع</h1>
+    
+    <div class="game-container">
+        <div class="level-selector">
+            <button class="level-btn active" data-level="easy">سهل</button>
+            <button class="level-btn" data-level="medium">متوسط</button>
+            <button class="level-btn" data-level="hard">صعب</button>
+        </div>
+        
+        <div class="stats">
+            <div class="timer"><i class="fas fa-clock"></i> الوقت: <span id="time">60</span> ثانية</div>
+            <div class="score"><i class="fas fa-star"></i> النقاط: <span id="points">0</span></div>
+        </div>
+        
+        <div class="question" id="question">?</div>
+        
+        <div class="options" id="options">
+            <!-- سيتم ملؤها بالجوابت -->
+        </div>
+        
+        <button class="start-btn" id="startBtn">ابدأ اللعبة</button>
+    </div>
+
+    <audio id="correctSound" src="https://actions.google.com/sounds/v1/cartoon/cartoon_boing.ogg" preload="auto"></audio>
+    <audio id="wrongSound" src="https://actions.google.com/sounds/v1/cartoon/cartoon_descent.ogg" preload="auto"></audio>
+    <audio id="timeSound" src="https://actions.google.com/sounds/v1/alarms/beep_short.ogg" preload="auto"></audio>
+
+    <script>
+        const levels = {
+            easy: { range: 10, time: 60 },
+            medium: { range: 25, time: 45 },
+            hard: { range: 50, time: 30 }
+        };
+        
+        let currentLevel = 'easy';
+        let score = 0;
+        let timeLeft = levels[currentLevel].time;
+        let timer;
+        let correctAnswer;
+        let gameActive = false;
+        
+        const questionEl = document.getElementById('question');
+        const optionsEl = document.getElementById('options');
+        const startBtn = document.getElementById('startBtn');
+        const timeEl = document.getElementById('time');
+        const pointsEl = document.getElementById('points');
+        const levelBtns = document.querySelectorAll('.level-btn');
+        const correctSound = document.getElementById('correctSound');
+        const wrongSound = document.getElementById('wrongSound');
+        const timeSound = document.getElementById('timeSound');
+        
+        // اختيار المستوى
+        levelBtns.forEach(btn => {
+            btn.addEventListener('click', function() {
+                levelBtns.forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                currentLevel = this.dataset.level;
+                timeLeft = levels[currentLevel].time;
+                timeEl.textContent = timeLeft;
+                
+                // إعادة تعيين اللعبة إذا كانت نشطة
+                if (gameActive) {
+                    clearInterval(timer);
+                    startGame();
+                }
+            });
+        });
+        
+        // بدء اللعبة
+        startBtn.addEventListener('click', startGame);
+        
+        function startGame() {
+            score = 0;
+            timeLeft = levels[currentLevel].time;
+            gameActive = true;
+            pointsEl.textContent = score;
+            timeEl.textContent = timeLeft;
+            startBtn.style.display = 'none';
+            timeEl.style.color = 'var(--neon-green)';
+            
+            timer = setInterval(updateTimer, 1000);
+            generateQuestion();
+        }
+        
+        function updateTimer() {
+            timeLeft--;
+            timeEl.textContent = timeLeft;
+            
+            if (timeLeft <= 5) {
+                timeSound.currentTime = 0;
+                timeSound.play();
+                timeEl.style.color = '#ff5555';
+            }
+            
+            if (timeLeft <= 0) {
+                endGame();
+            }
+        }
+        
+        function generateQuestion() {
+            const { range } = levels[currentLevel];
+            const operations = ['+', '-', '*'];
+            const operation = operations[Math.floor(Math.random() * operations.length)];
+            
+            let num1, num2, answer;
+            
+            switch(operation) {
+                case '+':
+                    num1 = Math.floor(Math.random() * range) + 1;
+                    num2 = Math.floor(Math.random() * range) + 1;
+                    answer = num1 + num2;
+                    break;
+                case '-':
+                    num1 = Math.floor(Math.random() * range) + 1;
+                    num2 = Math.floor(Math.random() * num1) + 1;
+                    answer = num1 - num2;
+                    break;
+                case '*':
+                    num1 = Math.floor(Math.random() * Math.sqrt(range)) + 1;
+                    num2 = Math.floor(Math.random() * Math.sqrt(range)) + 1;
+                    answer = num1 * num2;
+                    break;
+            }
+            
+            correctAnswer = answer;
+            questionEl.textContent = `${num1} ${operation} ${num2} = ?`;
+            
+            // توليد خيارات الإجابة
+            const options = [answer];
+            while (options.length < 4) {
+                let wrongAnswer;
+                do {
+                    wrongAnswer = answer + (Math.floor(Math.random() * 10) - 5);
+                } while (wrongAnswer === answer || wrongAnswer < 0 || options.includes(wrongAnswer));
+                
+                options.push(wrongAnswer);
+            }
+            
+            // خلط الخيارات
+            options.sort(() => Math.random() - 0.5);
+            
+            // عرض الخيارات
+            optionsEl.innerHTML = '';
+            options.forEach(option => {
+                const optionEl = document.createElement('div');
+                optionEl.classList.add('option');
+                optionEl.textContent = option;
+                optionEl.addEventListener('click', () => checkAnswer(option));
+                optionsEl.appendChild(optionEl);
+            });
+        }
+        
+        function checkAnswer(selected) {
+            if (!gameActive) return;
+            
+            if (selected === correctAnswer) {
+                // إجابة صحيحة
+                correctSound.currentTime = 0;
+                correctSound.play();
+                
+                score += currentLevel === 'easy' ? 1 : currentLevel === 'medium' ? 2 : 3;
+                pointsEl.textContent = score;
+                
+                // تأثير للإجابة الصحيحة
+                questionEl.style.color = '#00ff00';
+                setTimeout(() => {
+                    questionEl.style.color = 'var(--neon-pink)';
+                }, 300);
+            } else {
+                // إجابة خاطئة
+                wrongSound.currentTime = 0;
+                wrongSound.play();
+                
+                // تأثير للإجابة الخاطئة
+                questionEl.style.color = '#ff0000';
+                setTimeout(() => {
+                    questionEl.style.color = 'var(--neon-pink)';
+                }, 300);
+            }
+            
+            generateQuestion();
+        }
+        
+        function endGame() {
+            clearInterval(timer);
+            gameActive = false;
+            
+            questionEl.innerHTML = `انتهى الوقت!<br>نقاطك النهائية: ${score}`;
+            optionsEl.innerHTML = '';
+            
+            startBtn.style.display = 'block';
+            startBtn.textContent = 'العب مرة أخرى';
+            timeEl.style.color = 'var(--neon-green)';
+        }
+    </script>
+</body>
+</html>
